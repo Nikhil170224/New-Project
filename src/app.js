@@ -1,10 +1,9 @@
 const express = require("express");
 
 const app = express();
-app.use("/user", (req, res) => {
-    res.send("haaaahaha");
-})
-app.get("/user", (req, res) => {
+
+app.get("/user/:userid/:password/:city/:firm/:role", (req, res) => {
+    console.log(req.params);
     res.send({ firstName: "akshai", lastName: "Saini" })
 })
 
