@@ -1,4 +1,4 @@
-const adminAuth = app.use("/admin", (req, res, next) => {
+const adminAuth = (req, res, next) => {
   //here we write the auth logic for admin, whether the api call /admin is authenticated or not
   //the server should only respond if actual admin is making api call and doesnot respond if some hacker is mimicing the admin
   const token = "xyz";
@@ -9,9 +9,9 @@ const adminAuth = app.use("/admin", (req, res, next) => {
     console.log("Admin authenticated successfully!!");
     next();
   }
-});
+}
 
-const userAuth = app.use("/user", (req, res, next) => {
+const userAuth = (req, res, next) => {
   //here we write the auth logic for user, whether the api call /user is authenticated or not
   //the server should only respond if actual user is making api call and doesnot respond if some hacker is mimicing the user
   const token = "xyz";
@@ -22,7 +22,7 @@ const userAuth = app.use("/user", (req, res, next) => {
     console.log("User authenticated successfully!!");
     next();
   }
-});
+}
 
 module.exports ={
   adminAuth,
