@@ -2,7 +2,7 @@ const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
 const User = require("./model/user");
-const validateSignupData = require("./utils/validation");
+const {validateSignupData} = require("./utils/validation");
 const bcrypt = require('bcrypt');
 
 // when you write app.use then any http method can call this api & when you dont mention the route any route can access this api
