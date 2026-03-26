@@ -7,6 +7,26 @@ const bcrypt = require('bcrypt');
 
 // when you write app.use then any http method can call this api & when you dont mention the route any route can access this api
 app.use(express.json());
+app.post("/login", async (req, res) => {
+    try {
+        const { emailId, password } = req.body;
+        // check weather the emailId is present in db or not
+        const user = await User.findOne({ emailId: emailId });
+        if (!user) {
+            throw new Error("Invalid Credentials!!");
+        }
+
+        // if emailId is valid ==> compare the password is correct or not
+        const isCorrectPassword = await bcrypt.compare(password, user.password);
+        if (!isCorrectPassword) {
+            throw new Error("Invalid Credentials!!");
+        }
+        res.send("User login succesfull !");
+        
+    } catch (err) {
+        res.status(400).send("ERROR: " + err.message);
+    }
+});
 app.post("/signup", async (req, res) => {
     try{
         // validate the data
@@ -14,11 +34,16 @@ app.post("/signup", async (req, res) => {
         const {firstName, lastName, password, emailId} = req.body
 
         // encrypt the user password
-        const passwordHash = bcrypt.hash(password, 10);
-        console.log('passwordHash');
+        const passwordHash = await bcrypt.hash(password, 10);
+        console.log(passwordHash);
 
         // creating an instance of user model imported
-        const userObj = new User(req.body);
+        const userObj = new User({
+            firstName,
+            lastName,
+            password: passwordHash,
+            emailId
+        });
 
         await userObj.save()
         res.send("User Data saved Succesfully!!")
