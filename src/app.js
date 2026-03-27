@@ -4,9 +4,33 @@ const app = express();
 const User = require("./model/user");
 const {validateSignupData} = require("./utils/validation");
 const bcrypt = require('bcrypt');
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const {userAuth} = require("./middlewares/auth");
 
 // when you write app.use then any http method can call this api & when you dont mention the route any route can access this api
 app.use(express.json());
+app.use(cookieParser());
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+    try {
+        res.send(req.user.firstName + " Request Sent successfully!!")
+    }
+    catch (err) {
+        res.status(400).send("ERROR: " + err.message);
+    }
+    
+})
+app.get("/profile", userAuth, async (req, res) => {
+    try {
+        const user = req.user;      
+        res.send(user);
+    }
+    catch (err) {
+        res.status(400).send("ERROR: " + err.message);
+    }
+
+
+});
 app.post("/login", async (req, res) => {
     try {
         const { emailId, password } = req.body;
@@ -21,6 +45,15 @@ app.post("/login", async (req, res) => {
         if (!isCorrectPassword) {
             throw new Error("Invalid Credentials!!");
         }
+        
+        // here this is clear that user is valid and authenticated
+        // now we will create a jwt token
+        const token = await jwt.sign({ _id: user._id }, "DEV@tinder$790", {expiresIn: "7d"});
+
+        // attach the JWT token into cookie
+        res.cookie("token", token, {
+          expires: new Date(Date.now() + 24 * 3600000 * 7),
+        });
         res.send("User login succesfull !");
         
     } catch (err) {
@@ -35,7 +68,6 @@ app.post("/signup", async (req, res) => {
 
         // encrypt the user password
         const passwordHash = await bcrypt.hash(password, 10);
-        console.log(passwordHash);
 
         // creating an instance of user model imported
         const userObj = new User({

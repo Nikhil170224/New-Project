@@ -1,30 +1,27 @@
-const adminAuth = (req, res, next) => {
-  //here we write the auth logic for admin, whether the api call /admin is authenticated or not
-  //the server should only respond if actual admin is making api call and doesnot respond if some hacker is mimicing the admin
-  const token = "xyz";
-  const isAuthenticated = token === "xyz";
-  if (!isAuthenticated) {
-    res.status(404).send("unauthrized request!");
-  } else {
-    console.log("Admin authenticated successfully!!");
+const jwt = require("jsonwebtoken");
+const User = require("../model/user");
+
+const userAuth = async (req, res, next) => {
+  //here we write the auth logic for user, whether the api call /user is authenticated or not
+  try {
+    const token = req.cookies?.token;
+    if (!token) {
+      throw new Error("token not found !!!");
+    }
+    const decodedMsg = await jwt.verify(token, "DEV@tinder$790");
+    const { _id } = decodedMsg;
+    const user = await User.findById(_id);
+    if (!user) {
+      throw new Error("User not found!!");
+    }
+    req.user = user;
     next();
   }
-}
-
-const userAuth = (req, res, next) => {
-  //here we write the auth logic for user, whether the api call /user is authenticated or not
-  //the server should only respond if actual user is making api call and doesnot respond if some hacker is mimicing the user
-  const token = "xyz";
-  const isAuthenticated = token === "xyz";
-  if (!isAuthenticated) {
-    res.status(404).send("unauthrized request!");
-  } else {
-    console.log("User authenticated successfully!!");
-    next();
+  catch (err) {
+    res.status(400).send("ERROR: " + err.message);
   }
 }
 
 module.exports ={
-  adminAuth,
   userAuth
 }
