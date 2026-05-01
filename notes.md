@@ -13,8 +13,10 @@ Structure of api's in express.Router()
 3.
 
 # requestRouter
-1. sendconnectionRequest
-2. viewconnectionRequests
-3. acceptConnectionRequests
-4. rejectConnectionRequests
-5.
+1. /request/send/:status/:ToUserId
+2. /request/view/
+3. /request/accept/
+4. /request/reject/
+
+
+status : [ignored,Interested,accepted,rejected];
