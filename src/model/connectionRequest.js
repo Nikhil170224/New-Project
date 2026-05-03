@@ -3,10 +3,12 @@ const mongoose = require("mongoose");
 const connectionRequestSchema = new mongoose.Schema({
     FromUserId: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
     ToUserId: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
     status: {

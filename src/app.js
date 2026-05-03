@@ -9,6 +9,7 @@ const { userAuth } = require("./middlewares/auth");
 const authRouter = require("./routers/auth");
 const profileRouter = require("./routers/profile");
 const requestRouter = require("./routers/request");
+const userRouter = require("./routers/user");
 
 // when you write app.use then any http method can call this api & when you dont mention the route any route can access this api
 app.use(express.json());
@@ -16,6 +17,7 @@ app.use(cookieParser());
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
+app.use("/", userRouter);
 
 connectDB() 
     .then(() => {
