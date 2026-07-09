@@ -3,6 +3,7 @@ const userRouter = express.Router();
 
 const {userAuth} = require("../middlewares/auth");
 const connectionRequests = require("../model/connectionRequest");
+const User = require("../model/user");
 
 const SAFE_DATA = "firstName lastName age gender photoUrl";
 // user/request/received
@@ -11,14 +12,14 @@ userRouter.get("/user/request/received", userAuth, async (req, res) => {
     try {
         const loggedInUser = req.user;
         
-        const connectionRequests = await connectionRequests.find({
+        const connectionRequest = await connectionRequests.find({
             ToUserId: loggedInUser._id,
             status: "interested"
         }).populate("FromUserId", SAFE_DATA);
 
         res.json({
             message: "These are all the connection request received, but not answered!",
-            Connection_Request: connectionRequests
+            Connection_Request: connectionRequest
         });
     }
     catch (err) {
@@ -49,11 +50,50 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
         
         res.json({
             message: "These are all the connections you have",
-            Connections: data
+            Conn: data
         });
     }
     catch (err) {
         res.status(400).send("ERROR: " + err.message);
+    }
+});
+
+userRouter.get("/user/feed", userAuth, async (req, res) => {
+    try {      
+        const loggedInUser = req.user;
+
+        const page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 10;
+        limit = (limit > 50) ? 50 : limit;
+        const skip = (page - 1) * limit;
+
+        const UserConnectionRequests = await connectionRequests.find({
+            $or: [{ FromUserId: loggedInUser._id }, { ToUserId: loggedInUser._id }]
+        }).select("FromUserId ToUserId");
+        
+        const hiddenUsers = new Set();
+        UserConnectionRequests.forEach((request) => {
+            hiddenUsers.add(request.FromUserId.toString());
+            hiddenUsers.add(request.ToUserId.toString());
+        });
+
+        const feed = await User.find({
+            $and: [
+                { _id: { $nin: Array.from(hiddenUsers) } },
+                { _id: { $ne: loggedInUser._id } }
+            ]
+        })
+            .select(SAFE_DATA)
+            .skip(skip)
+            .limit(limit);
+
+        res.send({
+            Message: "This is your Feed",
+            Feed: feed
+        });
+    }
+    catch (err) {
+        res.status(400).json({ message: err.message });
     }
 });
 

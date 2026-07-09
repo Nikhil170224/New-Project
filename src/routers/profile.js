@@ -38,6 +38,9 @@ profileRouter.patch("/profile/updatePassword", userAuth, async(req,res)=>{
     if (!isprevPasswordCorrect) {
       throw new Error(`Oops! ${prevPassword} is wrong password!!`);
     }
+    validateEditProfileData({
+      body: { password: req.body.newPassword }
+    });
     const newpasswordHash = await bcrypt.hash(newPassword, 10);
     req.user.password = newpasswordHash;
     req.user.save();
