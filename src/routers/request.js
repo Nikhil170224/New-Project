@@ -16,7 +16,7 @@ requestRouter.post("/request/send/:status/:ToUserId", userAuth, async (req, res)
       return res.status(400).json({ message: "Invalid status type !" });
     }
 
-    // ✅ Validate ToUserId is a valid ObjectId BEFORE hitting the DB
+    // Validate ToUserId is a valid ObjectId BEFORE hitting the DB
     if (!mongoose.Types.ObjectId.isValid(ToUserId)) {
       return res.status(400).json({ message: "Invalid user ID format!" });
     }
