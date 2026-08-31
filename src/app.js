@@ -11,12 +11,13 @@ const profileRouter = require("./routers/profile");
 const requestRouter = require("./routers/request");
 const userRouter = require("./routers/user");
 const cors = require("cors");
+require("dotenv").config();
 
 
 app.use(express.json());
 // when you write app.use then any http method can call this api & when you dont mention the route any route can access this api
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true
 }
 ));
